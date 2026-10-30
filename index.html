@@ -1,77 +1,285 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>District School MIS Dashboard</title>
 
-    <title>School MIS Dashboard</title>
+<style>
+* { box-sizing: border-box; }
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            margin: 0;
-            padding: 20px;
-        }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+}
 
-        h1 {
-            text-align: center;
-        }
+header {
+    background: #123c69;
+    color: white;
+    padding: 22px;
+    text-align: center;
+}
 
-        .dashboard {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+header h1 { margin: 0 0 8px; }
+header p { margin: 0; }
 
-        .card {
-            background: white;
-            padding: 25px;
-            width: 180px;
-            text-align: center;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
 
-        .number {
-            font-size: 32px;
-            font-weight: bold;
-        }
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
 
-        .school {
-            color: #555;
-        }
-    </style>
+.card {
+    background: white;
+    padding: 22px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px #00000012;
+}
+
+.card h3 {
+    margin: 0;
+    font-size: 15px;
+    color: #64748b;
+}
+
+.card p {
+    font-size: 29px;
+    font-weight: bold;
+    margin: 12px 0 0;
+    color: #123c69;
+}
+
+.section {
+    background: white;
+    padding: 20px;
+    margin-top: 22px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px #00000012;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    margin: 12px 0;
+    font-size: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+th {
+    background: #eaf1f8;
+    color: #123c69;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+.bar-row {
+    margin: 18px 0;
+}
+
+.bar-label {
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.bar {
+    height: 23px;
+    background: #dbeafe;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: #2563eb;
+    border-radius: 5px;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #64748b;
+}
+
+</style>
 </head>
 
 <body>
 
-    <h1>School MIS Dashboard</h1>
+<header>
+    <h1>District School MIS Dashboard</h1>
+    <p>Primary Education Department | Washim</p>
+</header>
 
-    <div class="dashboard">
+<div class="container">
+
+    <div class="cards">
 
         <div class="card">
-            <div class="number">759</div>
-            <div class="school">Total Schools</div>
+            <h3>Total Schools</h3>
+            <p id="schools">0</p>
         </div>
 
         <div class="card">
-            <div class="number">85,000</div>
-            <div class="school">Total Students</div>
+            <h3>Total Students</h3>
+            <p id="students">0</p>
         </div>
 
         <div class="card">
-            <div class="number">43,500</div>
-            <div class="school">Boys</div>
+            <h3>Total Boys</h3>
+            <p id="boys">0</p>
         </div>
 
         <div class="card">
-            <div class="number">41,500</div>
-            <div class="school">Girls</div>
+            <h3>Total Girls</h3>
+            <p id="girls">0</p>
         </div>
 
     </div>
+
+    <div class="section">
+        <h2>Taluka Wise Student Chart</h2>
+        <div id="chart"></div>
+    </div>
+
+    <div class="section">
+        <h2>Taluka Wise MIS Report</h2>
+
+        <input
+            type="text"
+            id="search"
+            placeholder="Search Taluka..."
+            oninput="showTable()"
+        >
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Taluka</th>
+                        <th>Schools</th>
+                        <th>Students</th>
+                        <th>Boys</th>
+                        <th>Girls</th>
+                        <th>APAAR %</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tableData"></tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    District MIS Dashboard | Washim
+</footer>
+
+<script>
+
+// DEMO DATA - Replace with actual data later
+
+const data = [
+    {taluka:"Washim", schools:150, students:18000, boys:9300, girls:8700, apaar:95},
+    {taluka:"Malegaon", schools:100, students:12000, boys:6200, girls:5800, apaar:90},
+    {taluka:"Risod", schools:125, students:15000, boys:7700, girls:7300, apaar:88},
+    {taluka:"Karanja", schools:140, students:17000, boys:8800, girls:8200, apaar:92},
+    {taluka:"Mangrulpir", schools:110, students:13000, boys:6700, girls:6300, apaar:91},
+    {taluka:"Manora", schools:80, students:10000, boys:5100, girls:4900, apaar:89}
+];
+
+// Calculate totals
+
+const total = (field) =>
+    data.reduce((sum, row) => sum + row[field], 0);
+
+document.getElementById("schools").innerText =
+    total("schools").toLocaleString("en-IN");
+
+document.getElementById("students").innerText =
+    total("students").toLocaleString("en-IN");
+
+document.getElementById("boys").innerText =
+    total("boys").toLocaleString("en-IN");
+
+document.getElementById("girls").innerText =
+    total("girls").toLocaleString("en-IN");
+
+// Display table
+
+function showTable() {
+
+    const search = document
+        .getElementById("search")
+        .value.toLowerCase();
+
+    const filtered = data.filter(row =>
+        row.taluka.toLowerCase().includes(search)
+    );
+
+    document.getElementById("tableData").innerHTML =
+        filtered.map(row => `
+            <tr>
+                <td>${row.taluka}</td>
+                <td>${row.schools}</td>
+                <td>${row.students.toLocaleString("en-IN")}</td>
+                <td>${row.boys.toLocaleString("en-IN")}</td>
+                <td>${row.girls.toLocaleString("en-IN")}</td>
+                <td>${row.apaar}%</td>
+            </tr>
+        `).join("");
+}
+
+// Display chart
+
+function showChart() {
+
+    const max = Math.max(...data.map(row => row.students));
+
+    document.getElementById("chart").innerHTML =
+        data.map(row => `
+            <div class="bar-row">
+                <div class="bar-label">
+                    ${row.taluka} - ${row.students.toLocaleString("en-IN")}
+                </div>
+
+                <div class="bar">
+                    <div class="bar-fill"
+                    style="width:${row.students / max * 100}%">
+                    </div>
+                </div>
+            </div>
+        `).join("");
+}
+
+showTable();
+showChart();
+
+</script>
 
 </body>
 </html>
